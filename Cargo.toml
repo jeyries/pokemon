@@ -1,0 +1,23 @@
+[package]
+name = "pokemon" 
+version = "0.1.0" 
+authors = ["Julien Eyriès <julien@eyries.fr>"]
+
+[profile.dev]
+opt-level = 2
+debug = false
+
+[profile.release]
+opt-level = 2
+debug = false
+
+[profile.bench]
+opt-level = 2
+debug = false
+
+[[bin]]
+name = "pokemon_rust"
+path = "pokemon.rs"
+
+[dependencies]
+rayon = "1.0"

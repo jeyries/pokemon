@@ -1,0 +1,221 @@
+
+=== gcc-8 -O3 -march=native
+
+processing i0= 149
+elapsed = 1.075 s
+best = 104
+
+L7:
+	movq	(%rdx), %rax
+	movq	8(%rdx), %rsi
+	movq	16(%rdx), %rcx
+	orq	%r10, %rax
+	orq	%r9, %rsi
+	popcnt	%rax, %rax
+	popcnt	%rsi, %rsi
+	orq	%r8, %rcx
+	addl	%esi, %eax
+	popcnt	%rcx, %rcx
+	addl	%ecx, %eax
+	cmpl	%ebp, %eax
+	jle	L6
+	movb	7(%rsp), %cl
+	movb	6(%rsp), %sil
+	movb	$1, 4(%rsp)
+	movl	%eax, %ebp
+	movb	5(%rsp), %r15b
+	movb	1(%rsp), %r13b
+	movb	%bl, %r14b
+	movb	%dil, %r12b
+	movb	%cl, 3(%rsp)
+	movb	%sil, 2(%rsp)
+L6:
+	incl	%edi
+	addq	$24, %rdx
+	cmpl	%r11d, %edi
+	jne	L7
+
+=== clang -O3 -march=native -fno-slp-vectorize
+
+processing i0= 149
+elapsed = 0.987 s
+best = 104
+
+LBB0_11:                                ##   Parent Loop BB0_1 Depth=1
+                                        ##     Parent Loop BB0_3 Depth=2
+                                        ##       Parent Loop BB0_5 Depth=3
+                                        ##         Parent Loop BB0_7 Depth=4
+                                        ##           Parent Loop BB0_9 Depth=5
+                                        ## =>          This Inner Loop Header: Depth=6
+	movq	-16(%r8), %rcx
+	orq	%rdx, %rcx
+	movq	-8(%r8), %rsi
+	orq	%r14, %rsi
+	movq	(%r8), %rax
+	orq	%r12, %rax
+	popcntq	%rcx, %rcx
+	popcntq	%rsi, %rsi
+	addl	%ecx, %esi
+	popcntq	%rax, %r10
+	addl	%esi, %r10d
+	cmpl	%ebx, %r10d
+	jle	LBB0_13
+## BB#12:                               ##   in Loop: Header=BB0_11 Depth=6
+	movq	-48(%rbp), %rax         ## 8-byte Reload
+	movb	%al, (%r15)
+	movq	-56(%rbp), %rax         ## 8-byte Reload
+	movb	%al, 1(%r15)
+	movb	%r13b, 2(%r15)
+	movb	%r11b, 3(%r15)
+	movb	%dil, 4(%r15)
+	movb	%r9b, 5(%r15)
+	movl	%r10d, %ebx
+LBB0_13:                                ##   in Loop: Header=BB0_11 Depth=6
+	addq	$1, %r9
+	addq	$24, %r8
+	cmpq	%r9, %rdi
+	jne	LBB0_11
+
+=== swiftc -Ounchecked -Xcc -march=native -Xllvm -slp-threshold=1000000 -Xllvm -unroll-count=1
+
+processing i0= 149
+elapsed = 0.996 s
+best = 104
+
+LBB119_20:
+	movq	-16(%r9), %rcx
+	orq	%r12, %rcx
+	movq	-8(%r9), %rsi
+	orq	%r8, %rsi
+	movq	(%r9), %rax
+	orq	%rdx, %rax
+	popcntq	%rcx, %rcx
+	popcntq	%rsi, %rsi
+	addq	%rcx, %rsi
+	popcntq	%rax, %r13
+	addq	%rsi, %r13
+	cmpq	%r13, -88(%rbp)
+	jge	LBB119_22
+	movq	-48(%rbp), %rax
+	movq	%rax, (%rbx)
+	movq	%r15, 8(%rbx)
+	movq	%r14, 16(%rbx)
+	movq	%r11, 24(%rbx)
+	movq	%rdi, 32(%rbx)
+	movq	%r10, 40(%rbx)
+	movq	%r13, -88(%rbp)
+LBB119_22:
+	addq	$1, %r10
+	addq	$24, %r9
+	cmpq	%r10, %rdi
+	jne	LBB119_20
+
+=== Go
+
+	0x0053 00083 (pokemon.go:64)	INCQ	R11
+	0x0056 00086 (pokemon.go:64)	MOVQ	""._s2+136(SP), R15
+	0x005e 00094 (pokemon.go:72)	MOVQ	R15, AX
+	0x0061 00097 (pokemon.go:95)	MOVQ	""..autotmp_49+200(SP), DX
+	0x0069 00105 (pokemon.go:97)	MOVQ	CX, SI
+	0x006c 00108 (pokemon.go:95)	MOVQ	""..autotmp_48+208(SP), CX
+	0x0074 00116 (pokemon.go:64)	CMPQ	R11, R10
+	0x0077 00119 (pokemon.go:64)	JGE	612
+	0x007d 00125 (pokemon.go:70)	CMPQ	R11, $150
+	0x0084 00132 (pokemon.go:70)	JCC	1544
+	0x008a 00138 (pokemon.go:64)	MOVQ	R11, "".i5+72(SP)
+	0x008f 00143 (pokemon.go:97)	MOVQ	SI, ""..autotmp_50+192(SP)
+	0x0097 00151 (pokemon.go:70)	LEAQ	(R11)(R11*2), R15
+	0x009b 00155 (pokemon.go:70)	MOVQ	(R12)(R15*8), CX
+	0x009f 00159 (pokemon.go:70)	ORQ	R13, CX
+	0x00a2 00162 (pokemon.go:71)	MOVQ	8(R12)(R15*8), DX
+	0x00a7 00167 (pokemon.go:71)	ORQ	R14, DX
+	0x00aa 00170 (pokemon.go:72)	MOVQ	16(R12)(R15*8), R15
+	0x00af 00175 (pokemon.go:72)	ORQ	AX, R15
+	0x00b2 00178 (pokemon.go:72)	MOVQ	R15, ""..autotmp_51+184(SP)
+	0x00ba 00186 (pokemon.go:74)	PCDATA	$2, $3
+	0x00ba 00186 (pokemon.go:74)	LEAQ	runtime.support_popcnt(SB), AX
+	0x00c1 00193 (pokemon.go:74)	CMPB	(AX), $0
+	0x00c4 00196 (pokemon.go:74)	JEQ	501
+	0x00ca 00202 (pokemon.go:74)	POPCNTQ	CX, CX
+	0x00cf 00207 (pokemon.go:75)	CMPB	(AX), $0
+	0x00d2 00210 (pokemon.go:75)	JEQ	396
+	0x00d8 00216 (pokemon.go:75)	POPCNTQ	DX, DX
+	0x00dd 00221 (pokemon.go:75)	ADDQ	DX, CX
+	0x00e0 00224 (pokemon.go:76)	PCDATA	$2, $2
+	0x00e0 00224 (pokemon.go:76)	CMPB	(AX), $0
+	0x00e3 00227 (pokemon.go:76)	JEQ	299
+	0x00e5 00229 (pokemon.go:76)	XORQ	DX, DX
+	0x00e8 00232 (pokemon.go:76)	POPCNTQ	R15, DX
+	0x00ed 00237 (pokemon.go:76)	ADDQ	DX, CX
+	0x00f0 00240 (pokemon.go:78)	CMPQ	CX, SI
+	0x00f3 00243 (pokemon.go:78)	JLE	291
+	0x00f5 00245 (pokemon.go:80)	MOVB	BL, "".answer(SB)
+	0x00fb 00251 (pokemon.go:81)	MOVB	DIB, "".answer+1(SB)
+	0x0102 00258 (pokemon.go:82)	MOVB	R8B, "".answer+2(SB)
+	0x0109 00265 (pokemon.go:83)	MOVB	R9B, "".answer+3(SB)
+	0x0110 00272 (pokemon.go:84)	MOVB	R10B, "".answer+4(SB)
+	0x0117 00279 (pokemon.go:85)	MOVB	R11B, "".answer+5(SB)
+	0x011e 00286 (pokemon.go:85)	JMP	83
+	0x0123 00291 (pokemon.go:97)	MOVQ	SI, CX
+	0x0126 00294 (pokemon.go:78)	JMP	83
+
+
+processing i0= 149
+elapsed = 2.140 s
+best = 104
+
+=== Rust: -O -C target-cpu=native
+
+LBB23_19:
+	leaq	1(%r15), %r12
+	movq	-16(%rdi), %rdx
+	orq	%r14, %rdx
+	movq	-8(%rdi), %rcx
+	orq	%r11, %rcx
+	movq	(%rdi), %rbx
+	orq	%r9, %rbx
+	popcntq	%rdx, %rdx
+	popcntq	%rcx, %rcx
+	addl	%edx, %ecx
+	xorl	%r13d, %r13d
+	popcntq	%rbx, %r13
+	addl	%ecx, %r13d
+	cmpl	(%rsi), %r13d
+	jbe	LBB23_21
+	movl	%r13d, (%rsi)
+	movq	-56(%rbp), %rcx
+	movb	%cl, 4(%rsi)
+	movb	%r8b, 5(%rsi)
+	movq	-64(%rbp), %rcx
+	movb	%cl, 6(%rsi)
+	movb	%r10b, 7(%rsi)
+	movb	%al, 8(%rsi)
+	movb	%r15b, 9(%rsi)
+LBB23_21:
+	addq	$24, %rdi
+	movq	%r12, %r15
+	cmpq	%rax, %r12
+	jb	LBB23_19
+
+### warning: macbook pro 2015 core i7
+
+[i0 149] processing
+[i0 149] elapsed = 0.875 s
+[i0 149] best = 104
+
+===
+
+RUSTFLAGS="-C target-cpu=native" cargo build
+RUSTFLAGS="-C target-cpu=native" cargo run input_3.txt
+RUSTFLAGS="-C target-cpu=native" cargo run input_3.txt --parallel
+
+=== best = 105
+
+Aquali
+Leveinard
+Onix
+Aeromite
+Nidoking
+Dracaufeu
+
+
